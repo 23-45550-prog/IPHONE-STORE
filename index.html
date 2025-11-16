@@ -1,0 +1,2126 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iPhone Store Management System</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .glass-effect {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .dark .glass-effect {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+        }
+        
+        .gradient-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1) 2px, transparent 2px),
+                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 2px, transparent 2px),
+                radial-gradient(circle at 40% 60%, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 100px 100px, 150px 150px, 80px 80px;
+            background-position: 0 0, 50px 50px, 25px 25px;
+            opacity: 0.3;
+        }
+        
+        .dark .gradient-bg {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        .phone-pattern {
+            background-image: 
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M20 10h20v40H20V10zm5 5v30h10V15H25z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background-size: 60px 60px;
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(0, 122, 255, 0.3);
+        }
+        
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .notification {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="min-h-full bg-gray-50 dark:bg-gray-900 transition-colors duration-300"><!-- Navigation -->
+  <nav class="sticky top-0 z-50 glass-effect border-b border-gray-200 dark:border-gray-700">
+   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+     <div class="flex items-center space-x-4">
+      <h1 id="store-name" class="text-xl font-bold text-gray-900 dark:text-white cursor-pointer" onclick="navigateTo('home')">iPhone Store</h1><span id="tagline" class="hidden sm:block text-sm text-gray-600 dark:text-gray-400"> Premium iPhones, Premium Experience </span>
+     </div>
+     <div class="flex items-center space-x-4"><!-- Theme Toggle --> <button id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+       <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+       </svg></button> <!-- Navigation Links -->
+      <div id="public-nav" class="hidden md:flex items-center space-x-6"><a href="#" onclick="navigateTo('home')" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Home</a> <a href="#" onclick="navigateTo('about')" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">About</a> <a href="#" onclick="navigateTo('contact')" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Contact</a> <button onclick="navigateTo('cart')" class="relative text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m0 0h8m-8 0a2 2 0 100 4 2 2 0 000-4zm8 0a2 2 0 100 4 2 2 0 000-4z"></path>
+        </svg><span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span> </button> <button onclick="navigateTo('login')" class="btn-primary text-white px-4 py-2 rounded-lg font-medium"> Sign In </button>
+      </div><!-- User Menu -->
+      <div id="user-nav" class="hidden items-center space-x-4"><span id="user-name" class="text-gray-700 dark:text-gray-300 font-medium"></span> <button onclick="navigateTo('cart')" class="relative text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m0 0h8m-8 0a2 2 0 100 4 2 2 0 000-4zm8 0a2 2 0 100 4 2 2 0 000-4z"></path>
+        </svg><span id="user-cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span> </button> <button id="dashboard-btn" onclick="navigateToDashboard()" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"> Dashboard </button> <button onclick="signOut()" class="text-red-600 hover:text-red-700 transition-colors"> Sign Out </button>
+      </div>
+     </div>
+    </div>
+   </div>
+  </nav><!-- Main Content -->
+  <main class="min-h-full"><!-- Home Page -->
+   <div id="home-view" class="view">
+    <div class="gradient-bg phone-pattern min-h-screen">
+     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
+      <div class="text-center mb-16">
+       <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 fade-in">iPhone Store</h1>
+       <p class="text-xl md:text-2xl text-white/80 mb-8 fade-in">Premium iPhones, Premium Experience</p>
+       <div class="flex flex-col sm:flex-row gap-4 justify-center fade-in"><button onclick="navigateTo('login')" class="btn-primary text-white px-8 py-4 rounded-xl font-semibold text-lg"> Get Started </button> <button onclick="navigateTo('about')" class="glass-effect text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/20 transition-colors"> Learn More </button>
+       </div>
+      </div><!-- Features Grid -->
+      <div class="grid md:grid-cols-3 gap-8 mt-20">
+       <div class="glass-effect p-8 rounded-2xl text-center card-hover">
+        <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+         </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-white mb-2">Latest Models</h3>
+        <p class="text-white/70">Access to the newest iPhone models with cutting-edge technology</p>
+       </div>
+       <div class="glass-effect p-8 rounded-2xl text-center card-hover">
+        <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+         </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-white mb-2">Quality Assured</h3>
+        <p class="text-white/70">All devices come with warranty and quality guarantee</p>
+       </div>
+       <div class="glass-effect p-8 rounded-2xl text-center card-hover">
+        <div class="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+         </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-white mb-2">Fast Service</h3>
+        <p class="text-white/70">Quick processing and delivery for all your orders</p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><!-- About Page -->
+   <div id="about-view" class="view hidden">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+     <div class="text-center mb-16">
+      <h1 id="about-title" class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">About Our Store</h1>
+      <p id="about-description" class="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">We provide the latest iPhone models with exceptional service and competitive prices.</p>
+     </div>
+     <div class="grid md:grid-cols-2 gap-12 items-center">
+      <div>
+       <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Our Mission</h2>
+       <p class="text-gray-600 dark:text-gray-400 mb-6">To provide customers with the best iPhone experience through premium products, exceptional service, and innovative solutions that enhance their digital lifestyle.</p>
+       <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Why Choose Us</h2>
+       <ul class="space-y-2 text-gray-600 dark:text-gray-400">
+        <li class="flex items-center">
+         <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+         </svg> Authorized Apple retailer</li>
+        <li class="flex items-center">
+         <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+         </svg> Competitive pricing</li>
+        <li class="flex items-center">
+         <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+         </svg> Expert customer support</li>
+       </ul>
+      </div>
+      <div class="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-8 text-white">
+       <h3 class="text-2xl font-semibold mb-4">Get in Touch</h3>
+       <p class="mb-6">Ready to find your perfect iPhone? Contact us today!</p><button onclick="navigateTo('contact')" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"> Contact Us </button>
+      </div>
+     </div>
+    </div>
+   </div><!-- Contact Page -->
+   <div id="contact-view" class="view hidden">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+     <div class="text-center mb-16">
+      <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">Contact Us</h1>
+      <p class="text-xl text-gray-600 dark:text-gray-400">Get in touch with our team for any questions or support</p>
+     </div>
+     <div class="grid md:grid-cols-2 gap-12">
+      <div>
+       <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Get in Touch</h2>
+       <div class="space-y-4">
+        <div class="flex items-center">
+         <svg class="w-6 h-6 text-blue-500 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+         </svg><span id="contact-email" class="text-gray-600 dark:text-gray-400">info@iphonestore.com</span>
+        </div>
+        <div class="flex items-center">
+         <svg class="w-6 h-6 text-blue-500 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+         </svg><span id="contact-phone" class="text-gray-600 dark:text-gray-400">+1 (555) 123-4567</span>
+        </div>
+        <div class="flex items-center">
+         <svg class="w-6 h-6 text-blue-500 mr-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+         </svg><span class="text-gray-600 dark:text-gray-400">123 Tech Street, Digital City, DC 12345</span>
+        </div>
+       </div>
+       <div class="mt-8">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Business Hours</h3>
+        <div class="space-y-2 text-gray-600 dark:text-gray-400">
+         <div class="flex justify-between"><span>Monday - Friday</span> <span>9:00 AM - 8:00 PM</span>
+         </div>
+         <div class="flex justify-between"><span>Saturday</span> <span>10:00 AM - 6:00 PM</span>
+         </div>
+         <div class="flex justify-between"><span>Sunday</span> <span>12:00 PM - 5:00 PM</span>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
+       <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Send us a Message</h3>
+       <form class="space-y-4">
+        <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name</label> <input type="text" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label> <input type="email" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Message</label> <textarea rows="4" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"></textarea>
+        </div><button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold"> Send Message </button>
+       </form>
+      </div>
+     </div>
+    </div>
+   </div><!-- Login Page -->
+   <div id="login-view" class="view hidden">
+    <div class="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
+     <div class="max-w-md w-full space-y-8">
+      <div class="text-center">
+       <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Sign in to your account</h2>
+       <p class="mt-2 text-gray-600 dark:text-gray-400">Don't have an account? <a href="#" onclick="navigateTo('signup')" class="text-blue-600 hover:text-blue-500">Sign up</a></p>
+      </div><!-- Demo Accounts -->
+      <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+       <h3 class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-3">Demo Accounts</h3>
+       <div class="space-y-3 text-sm">
+        <div class="flex justify-between items-center">
+         <div>
+          <div class="font-medium text-blue-700 dark:text-blue-300">
+           Admin Account
+          </div>
+          <div class="text-blue-600 dark:text-blue-400">
+           admin@iphonestore.com / admin123
+          </div>
+         </div><button onclick="fillLoginForm('admin@iphonestore.com', 'admin123')" class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"> Use </button>
+        </div>
+        <div class="flex justify-between items-center">
+         <div>
+          <div class="font-medium text-blue-700 dark:text-blue-300">
+           User Account
+          </div>
+          <div class="text-blue-600 dark:text-blue-400">
+           user@iphonestore.com / user123
+          </div>
+         </div><button onclick="fillLoginForm('user@iphonestore.com', 'user123')" class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"> Use </button>
+        </div>
+       </div>
+      </div>
+      <form id="login-form" class="mt-8 space-y-6">
+       <div><label for="login-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email address</label> <input id="login-email" name="email" type="email" required class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+       </div>
+       <div><label for="login-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label> <input id="login-password" name="password" type="password" required class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+       </div><button type="submit" class="w-full btn-primary text-white py-2 px-4 rounded-md font-medium"> <span class="btn-text">Sign In</span>
+        <svg class="loading-spinner hidden w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg></button>
+      </form>
+     </div>
+    </div>
+   </div><!-- Sign Up Page -->
+   <div id="signup-view" class="view hidden">
+    <div class="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
+     <div class="max-w-md w-full space-y-8">
+      <div class="text-center">
+       <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Create your account</h2>
+       <p class="mt-2 text-gray-600 dark:text-gray-400">Already have an account? <a href="#" onclick="navigateTo('login')" class="text-blue-600 hover:text-blue-500">Sign in</a></p>
+      </div>
+      <form id="signup-form" class="mt-8 space-y-6">
+       <div><label for="signup-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label> <input id="signup-name" name="name" type="text" required class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+       </div>
+       <div><label for="signup-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email address</label> <input id="signup-email" name="email" type="email" required class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+       </div>
+       <div><label for="signup-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label> <input id="signup-password" name="password" type="password" required class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+       </div><button type="submit" class="w-full btn-primary text-white py-2 px-4 rounded-md font-medium"> <span class="btn-text">Create Account</span>
+        <svg class="loading-spinner hidden w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg></button>
+      </form>
+     </div>
+    </div>
+   </div><!-- User Dashboard -->
+   <div id="user-dashboard-view" class="view hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+     <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">User Dashboard</h1>
+      <p class="text-gray-600 dark:text-gray-400">Welcome back! Manage your account and browse products.</p>
+     </div><!-- Product Catalog -->
+     <div class="mb-12">
+      <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">iPhone Catalog</h2>
+      <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><!-- Products will be loaded here -->
+      </div>
+     </div><!-- Payment Methods -->
+     <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+      <div class="flex justify-between items-center mb-6">
+       <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Payment Methods</h2><button onclick="showAddPaymentModal()" class="btn-primary text-white px-4 py-2 rounded-lg font-medium"> Add Payment Method </button>
+      </div>
+      <div id="payment-methods-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"><!-- Payment methods will be loaded here -->
+      </div>
+     </div>
+    </div>
+   </div><!-- Shopping Cart -->
+   <div id="cart-view" class="view hidden">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+     <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Shopping Cart</h1>
+      <p class="text-gray-600 dark:text-gray-400">Review your items and proceed to checkout</p>
+     </div>
+     <div id="cart-content" class="space-y-6"><!-- Cart items will be loaded here -->
+     </div>
+     <div id="cart-empty" class="text-center py-16 hidden">
+      <svg class="w-24 h-24 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m0 0h8m-8 0a2 2 0 100 4 2 2 0 000-4zm8 0a2 2 0 100 4 2 2 0 000-4z"></path>
+      </svg>
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Your cart is empty</h3>
+      <p class="text-gray-600 dark:text-gray-400 mb-6">Start shopping to add items to your cart</p><button onclick="navigateTo('user-dashboard')" class="btn-primary text-white px-6 py-3 rounded-lg font-medium"> Continue Shopping </button>
+     </div>
+     <div id="cart-summary" class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg mt-8 hidden">
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Order Summary</h3>
+      <div class="space-y-2 mb-4">
+       <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Subtotal</span> <span id="cart-subtotal" class="font-medium text-gray-900 dark:text-white">$0.00</span>
+       </div>
+       <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Tax</span> <span id="cart-tax" class="font-medium text-gray-900 dark:text-white">$0.00</span>
+       </div>
+       <div class="border-t border-gray-200 dark:border-gray-700 pt-2">
+        <div class="flex justify-between"><span class="text-lg font-semibold text-gray-900 dark:text-white">Total</span> <span id="cart-total" class="text-lg font-bold text-blue-600">$0.00</span>
+        </div>
+       </div>
+      </div><button onclick="proceedToCheckout()" class="w-full btn-primary text-white py-3 rounded-lg font-semibold text-lg"> Proceed to Checkout </button>
+     </div>
+    </div>
+   </div><!-- Checkout Page -->
+   <div id="checkout-view" class="view hidden">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+     <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Checkout</h1>
+      <p class="text-gray-600 dark:text-gray-400">Complete your order</p>
+     </div>
+     <div class="grid lg:grid-cols-2 gap-8"><!-- Payment Methods -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+       <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Select Payment Method</h2>
+       <div class="space-y-4"><!-- Cash Payment --> <label class="flex items-center p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:border-blue-500 transition-colors"> <input type="radio" name="payment-method" value="cash" class="text-blue-600 focus:ring-blue-500">
+         <div class="ml-4 flex-1">
+          <div class="flex items-center">
+           <svg class="w-8 h-8 text-green-600 mr-3" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+           </svg>
+           <div>
+            <div class="font-semibold text-gray-900 dark:text-white">
+             Cash Payment
+            </div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">
+             Pay with cash on delivery
+            </div>
+           </div>
+          </div>
+         </div></label> <!-- Card Payment --> <label class="flex items-center p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:border-blue-500 transition-colors"> <input type="radio" name="payment-method" value="card" class="text-blue-600 focus:ring-blue-500">
+         <div class="ml-4 flex-1">
+          <div class="flex items-center">
+           <svg class="w-8 h-8 text-blue-600 mr-3" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+           </svg>
+           <div>
+            <div class="font-semibold text-gray-900 dark:text-white">
+             Credit/Debit Card
+            </div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">
+             Pay securely with your card
+            </div>
+           </div>
+          </div>
+         </div></label> <!-- GCash Payment --> <label class="flex items-center p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:border-blue-500 transition-colors"> <input type="radio" name="payment-method" value="gcash" class="text-blue-600 focus:ring-blue-500">
+         <div class="ml-4 flex-1">
+          <div class="flex items-center">
+           <svg class="w-8 h-8 text-blue-500 mr-3" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+           </svg>
+           <div>
+            <div class="font-semibold text-gray-900 dark:text-white">
+             GCash
+            </div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">
+             Pay with GCash mobile wallet
+            </div>
+           </div>
+          </div>
+         </div></label>
+       </div><!-- Card Details Form (shown when card is selected) -->
+       <div id="card-details" class="mt-6 space-y-4 hidden">
+        <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Card Number</label> <input type="text" placeholder="1234 5678 9012 3456" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+         <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Expiry Date</label> <input type="text" placeholder="MM/YY" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+         </div>
+         <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">CVV</label> <input type="text" placeholder="123" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+         </div>
+        </div>
+       </div><!-- GCash Details Form (shown when GCash is selected) -->
+       <div id="gcash-details" class="mt-6 space-y-4 hidden">
+        <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">GCash Mobile Number</label> <input type="tel" placeholder="+63 9XX XXX XXXX" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+        </div>
+       </div>
+      </div><!-- Order Summary -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+       <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Order Summary</h2>
+       <div id="checkout-items" class="space-y-4 mb-6"><!-- Checkout items will be loaded here -->
+       </div>
+       <div class="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-2">
+        <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Subtotal</span> <span id="checkout-subtotal" class="font-medium text-gray-900 dark:text-white">$0.00</span>
+        </div>
+        <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Tax (8%)</span> <span id="checkout-tax" class="font-medium text-gray-900 dark:text-white">$0.00</span>
+        </div>
+        <div class="flex justify-between text-lg font-semibold"><span class="text-gray-900 dark:text-white">Total</span> <span id="checkout-total" class="text-blue-600">$0.00</span>
+        </div>
+       </div>
+       <div class="mt-6 space-y-3"><button onclick="completeOrder()" class="w-full btn-primary text-white py-3 rounded-lg font-semibold text-lg"> Complete Order </button> <button onclick="navigateTo('cart')" class="w-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 py-3 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"> Back to Cart </button>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><!-- Admin Dashboard -->
+   <div id="admin-dashboard-view" class="view hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"><!-- Dashboard Header -->
+     <div class="mb-8">
+      <div class="flex justify-between items-center">
+       <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
+        <p class="text-gray-600 dark:text-gray-400">Comprehensive analytics and management center</p>
+       </div>
+       <div class="flex space-x-3"><button onclick="exportReport('sales')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"> Export Sales Report </button> <button onclick="exportReport('inventory')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"> Export Inventory Report </button>
+       </div>
+      </div>
+     </div><!-- Key Metrics Cards -->
+     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white">
+       <div class="flex items-center justify-between">
+        <div>
+         <h3 class="text-lg font-semibold mb-2">Total Revenue</h3>
+         <p class="text-3xl font-bold" id="total-revenue">$0</p>
+         <p class="text-blue-100 text-sm" id="revenue-change">+0% from last month</p>
+        </div>
+        <svg class="w-12 h-12 text-blue-200" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+        </svg>
+       </div>
+      </div>
+      <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-2xl p-6 text-white">
+       <div class="flex items-center justify-between">
+        <div>
+         <h3 class="text-lg font-semibold mb-2">Total Orders</h3>
+         <p class="text-3xl font-bold" id="total-orders">0</p>
+         <p class="text-green-100 text-sm" id="orders-change">+0% from last month</p>
+        </div>
+        <svg class="w-12 h-12 text-green-200" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+        </svg>
+       </div>
+      </div>
+      <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl p-6 text-white">
+       <div class="flex items-center justify-between">
+        <div>
+         <h3 class="text-lg font-semibold mb-2">Active Users</h3>
+         <p class="text-3xl font-bold" id="total-users">0</p>
+         <p class="text-purple-100 text-sm" id="users-change">+0% from last month</p>
+        </div>
+        <svg class="w-12 h-12 text-purple-200" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+        </svg>
+       </div>
+      </div>
+      <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white">
+       <div class="flex items-center justify-between">
+        <div>
+         <h3 class="text-lg font-semibold mb-2">Products</h3>
+         <p class="text-3xl font-bold" id="total-products">0</p>
+         <p class="text-orange-100 text-sm" id="low-stock-alert">0 low stock items</p>
+        </div>
+        <svg class="w-12 h-12 text-orange-200" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+        </svg>
+       </div>
+      </div>
+     </div><!-- Analytics Charts -->
+     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8"><!-- Sales Chart -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+       <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Sales Analytics</h3><select id="sales-period" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"> <option value="7">Last 7 days</option> <option value="30">Last 30 days</option> <option value="90">Last 90 days</option> </select>
+       </div>
+       <div id="sales-chart" class="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
+        <div class="text-center">
+         <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+         </svg>
+         <p>Sales trend visualization</p>
+        </div>
+       </div>
+      </div><!-- Top Products -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+       <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Top Selling Products</h3>
+       <div id="top-products" class="space-y-4"><!-- Top products will be loaded here -->
+       </div>
+      </div>
+     </div><!-- Recent Activity & Orders -->
+     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8"><!-- Recent Orders -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+       <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Recent Orders</h3><button onclick="showAllOrders()" class="text-blue-600 hover:text-blue-700 text-sm font-medium"> View All </button>
+       </div>
+       <div id="recent-orders" class="space-y-4"><!-- Recent orders will be loaded here -->
+       </div>
+      </div><!-- User Activity -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+       <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">User Activity</h3>
+       <div id="user-activity" class="space-y-4"><!-- User activity will be loaded here -->
+       </div>
+      </div>
+     </div><!-- Management Sections -->
+     <div class="space-y-8"><!-- Product Management -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+       <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Product Management</h2>
+        <div class="flex space-x-3"><button onclick="showAddProductModal()" class="btn-primary text-white px-4 py-2 rounded-lg font-medium"> Add Product </button> <button onclick="showBulkActions()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium"> Bulk Actions </button>
+        </div>
+       </div><!-- Product Filters -->
+       <div class="flex flex-wrap gap-4 mb-6"><select id="product-category-filter" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"> <option value="">All Categories</option> <option value="iPhone 15">iPhone 15 Series</option> <option value="iPhone 14">iPhone 14 Series</option> <option value="iPhone 13">iPhone 13 Series</option> <option value="iPhone 12">iPhone 12 Series</option> <option value="iPhone 11">iPhone 11 Series</option> <option value="iPhone SE">iPhone SE</option> </select> <select id="product-price-filter" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"> <option value="">All Prices</option> <option value="0-500">$0 - $500</option> <option value="500-800">$500 - $800</option> <option value="800-1000">$800 - $1000</option> <option value="1000+">$1000+</option> </select> <input type="text" id="product-search" placeholder="Search products..." class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white">
+       </div>
+       <div id="admin-products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><!-- Products will be loaded here -->
+       </div>
+      </div><!-- Order Management -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+       <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Order Management</h2>
+        <div class="flex space-x-3"><select id="order-status-filter" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"> <option value="">All Orders</option> <option value="pending">Pending</option> <option value="processing">Processing</option> <option value="shipped">Shipped</option> <option value="delivered">Delivered</option> <option value="cancelled">Cancelled</option> </select>
+        </div>
+       </div>
+       <div class="overflow-x-auto">
+        <table class="w-full">
+         <thead>
+          <tr class="border-b border-gray-200 dark:border-gray-700">
+           <th class="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Order ID</th>
+           <th class="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Customer</th>
+           <th class="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Products</th>
+           <th class="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Total</th>
+           <th class="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Status</th>
+           <th class="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Date</th>
+           <th class="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Actions</th>
+          </tr>
+         </thead>
+         <tbody id="orders-table"><!-- Orders will be loaded here -->
+         </tbody>
+        </table>
+       </div>
+      </div><!-- User Management -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+       <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">User Management</h2>
+        <div class="flex space-x-3"><select id="user-role-filter" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"> <option value="">All Roles</option> <option value="admin">Admin</option> <option value="user">User</option> </select> <input type="text" id="user-search" placeholder="Search users..." class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white">
+        </div>
+       </div>
+       <div class="overflow-x-auto">
+        <table class="w-full">
+         <thead>
+          <tr class="border-b border-gray-200 dark:border-gray-700">
+           <th class="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Name</th>
+           <th class="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Email</th>
+           <th class="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Role</th>
+           <th class="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Orders</th>
+           <th class="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Total Spent</th>
+           <th class="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Joined</th>
+           <th class="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Actions</th>
+          </tr>
+         </thead>
+         <tbody id="users-table"><!-- Users will be loaded here -->
+         </tbody>
+        </table>
+       </div>
+      </div><!-- System Settings -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+       <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">System Settings</h2>
+       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+         <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Payment Settings</h3>
+         <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Configure payment gateways</p><button onclick="showPaymentSettings()" class="text-blue-600 hover:text-blue-700 text-sm font-medium"> Configure </button>
+        </div>
+        <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+         <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Security Logs</h3>
+         <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Monitor system access</p><button onclick="showSecurityLogs()" class="text-blue-600 hover:text-blue-700 text-sm font-medium"> View Logs </button>
+        </div>
+        <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+         <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Data Backup</h3>
+         <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Backup and restore data</p><button onclick="createBackup()" class="text-blue-600 hover:text-blue-700 text-sm font-medium"> Create Backup </button>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </main><!-- Add Product Modal -->
+  <div id="add-product-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+   <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md mx-4">
+    <div class="flex justify-between items-center mb-6">
+     <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Add Product</h3><button onclick="closeModal('add-product-modal')" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg></button>
+    </div>
+    <form id="add-product-form" class="space-y-4">
+     <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Product Name</label> <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+     </div>
+     <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Price ($)</label> <input type="number" name="price" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+     </div>
+     <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label> <textarea name="description" required rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"></textarea>
+     </div>
+     <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Image URL</label> <input type="url" name="imageUrl" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+     </div><button type="submit" class="w-full btn-primary text-white py-2 px-4 rounded-lg font-medium"> Add Product </button>
+    </form>
+   </div>
+  </div><!-- Edit Product Modal -->
+  <div id="edit-product-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+   <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md mx-4">
+    <div class="flex justify-between items-center mb-6">
+     <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Edit Product</h3><button onclick="closeModal('edit-product-modal')" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg></button>
+    </div>
+    <form id="edit-product-form" class="space-y-4"><input type="hidden" id="edit-product-id" name="productId">
+     <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Product Name</label> <input type="text" id="edit-product-name" name="name" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+     </div>
+     <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Price ($)</label> <input type="number" id="edit-product-price" name="price" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+     </div>
+     <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label> <textarea id="edit-product-description" name="description" required rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"></textarea>
+     </div>
+     <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Image URL</label> <input type="url" id="edit-product-image" name="imageUrl" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+     </div>
+     <div class="flex space-x-3"><button type="submit" class="flex-1 btn-primary text-white py-2 px-4 rounded-lg font-medium"> Update Product </button> <button type="button" onclick="closeModal('edit-product-modal')" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg font-medium"> Cancel </button>
+     </div>
+    </form>
+   </div>
+  </div><!-- Add Payment Method Modal -->
+  <div id="add-payment-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+   <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md mx-4">
+    <div class="flex justify-between items-center mb-6">
+     <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Add Payment Method</h3><button onclick="closeModal('add-payment-modal')" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg></button>
+    </div>
+    <form id="add-payment-form" class="space-y-4">
+     <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Card Type</label> <select name="cardType" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"> <option value="">Select Card Type</option> <option value="Visa">Visa</option> <option value="Mastercard">Mastercard</option> <option value="American Express">American Express</option> <option value="Discover">Discover</option> </select>
+     </div>
+     <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Last Four Digits</label> <input type="text" name="lastFourDigits" required maxlength="4" pattern="[0-9]{4}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+     </div>
+     <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Expiry Date</label> <input type="month" name="expiryDate" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+     </div><button type="submit" class="w-full btn-primary text-white py-2 px-4 rounded-lg font-medium"> Add Payment Method </button>
+    </form>
+   </div>
+  </div><!-- Notification Container -->
+  <div id="notification-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+  <script>
+        // Configuration for editable features
+        const defaultConfig = {
+            store_name: "iPhone Store",
+            tagline: "Premium iPhones, Premium Experience",
+            about_title: "About Our Store",
+            about_description: "We provide the latest iPhone models with exceptional service and competitive prices.",
+            contact_email: "info@iphonestore.com",
+            contact_phone: "+1 (555) 123-4567"
+        };
+
+        // Initialize Element SDK
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig: defaultConfig,
+                onConfigChange: async (config) => {
+                    // Update store name and tagline
+                    document.getElementById('store-name').textContent = config.store_name || defaultConfig.store_name;
+                    document.getElementById('tagline').textContent = config.tagline || defaultConfig.tagline;
+                    
+                    // Update about section
+                    document.getElementById('about-title').textContent = config.about_title || defaultConfig.about_title;
+                    document.getElementById('about-description').textContent = config.about_description || defaultConfig.about_description;
+                    
+                    // Update contact information
+                    document.getElementById('contact-email').textContent = config.contact_email || defaultConfig.contact_email;
+                    document.getElementById('contact-phone').textContent = config.contact_phone || defaultConfig.contact_phone;
+                },
+                mapToCapabilities: (config) => ({
+                    recolorables: [],
+                    borderables: [],
+                    fontEditable: undefined,
+                    fontSizeable: undefined
+                }),
+                mapToEditPanelValues: (config) => new Map([
+                    ["store_name", config.store_name || defaultConfig.store_name],
+                    ["tagline", config.tagline || defaultConfig.tagline],
+                    ["about_title", config.about_title || defaultConfig.about_title],
+                    ["about_description", config.about_description || defaultConfig.about_description],
+                    ["contact_email", config.contact_email || defaultConfig.contact_email],
+                    ["contact_phone", config.contact_phone || defaultConfig.contact_phone]
+                ])
+            });
+        }
+
+        // Global variables
+        let currentUser = null;
+        let currentView = 'home';
+        let products = [];
+        let paymentMethods = [];
+        let users = [];
+        let cart = [];
+        let orders = [];
+        let analytics = {
+            totalRevenue: 0,
+            totalOrders: 0,
+            salesData: [],
+            topProducts: [],
+            userActivity: []
+        };
+
+        // Demo data
+        const demoUsers = {
+            'admin@iphonestore.com': {
+                uid: 'admin-uid',
+                name: 'Admin User',
+                email: 'admin@iphonestore.com',
+                role: 'admin',
+                password: 'admin123'
+            },
+            'user@iphonestore.com': {
+                uid: 'user-uid',
+                name: 'Demo User',
+                email: 'user@iphonestore.com',
+                role: 'user',
+                password: 'user123'
+            }
+        };
+
+        const demoProducts = [
+            {
+                id: '1',
+                name: 'iPhone 15 Pro Max',
+                price: 1199,
+                description: 'The ultimate iPhone with titanium design, A17 Pro chip, and Pro camera system',
+                imageUrl: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&h=300&fit=crop',
+                category: 'iPhone'
+            },
+            {
+                id: '2',
+                name: 'iPhone 15 Pro',
+                price: 999,
+                description: 'Pro performance with titanium design and advanced camera capabilities',
+                imageUrl: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop',
+                category: 'iPhone'
+            },
+            {
+                id: '3',
+                name: 'iPhone 15 Plus',
+                price: 899,
+                description: 'Larger display with all-day battery life and Dynamic Island',
+                imageUrl: 'https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=300&fit=crop',
+                category: 'iPhone'
+            },
+            {
+                id: '4',
+                name: 'iPhone 15',
+                price: 799,
+                description: 'Dynamic Island and 48MP Main camera in a durable design',
+                imageUrl: 'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=400&h=300&fit=crop',
+                category: 'iPhone'
+            },
+            {
+                id: '5',
+                name: 'iPhone 14 Pro Max',
+                price: 1099,
+                description: 'Previous generation Pro Max with excellent performance',
+                imageUrl: 'https://images.unsplash.com/photo-1603891128711-11b4b03bb138?w=400&h=300&fit=crop',
+                category: 'iPhone'
+            },
+            {
+                id: '6',
+                name: 'iPhone 14 Pro',
+                price: 899,
+                description: 'Pro camera system with 48MP Main camera and ProRAW',
+                imageUrl: 'https://images.unsplash.com/photo-1605236453806-6ff36851218e?w=400&h=300&fit=crop',
+                category: 'iPhone'
+            },
+            {
+                id: '7',
+                name: 'iPhone 14',
+                price: 699,
+                description: 'Great performance with improved cameras and battery life',
+                imageUrl: 'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400&h=300&fit=crop',
+                category: 'iPhone'
+            },
+            {
+                id: '8',
+                name: 'iPhone 13 Pro',
+                price: 799,
+                description: 'Proven Pro performance with excellent camera system',
+                imageUrl: 'https://images.unsplash.com/photo-1632633173522-3c2e0d2d9c6e?w=400&h=300&fit=crop',
+                category: 'iPhone'
+            },
+            {
+                id: '9',
+                name: 'iPhone 13',
+                price: 599,
+                description: 'Reliable performance with great value for money',
+                imageUrl: 'https://images.unsplash.com/photo-1632661674596-df8be070a5c5?w=400&h=300&fit=crop',
+                category: 'iPhone'
+            },
+            {
+                id: '10',
+                name: 'iPhone SE (3rd Gen)',
+                price: 429,
+                description: 'Compact design with A15 Bionic chip and Touch ID',
+                imageUrl: 'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=400&h=300&fit=crop',
+                category: 'iPhone'
+            },
+            {
+                id: '11',
+                name: 'iPhone 12 Pro Max',
+                price: 699,
+                description: 'Large 6.7-inch display with Pro camera system and 5G',
+                imageUrl: 'https://images.unsplash.com/photo-1605236453806-6ff36851218e?w=400&h=300&fit=crop',
+                category: 'iPhone'
+            },
+            {
+                id: '12',
+                name: 'iPhone 12 Pro',
+                price: 599,
+                description: 'Pro camera system with LiDAR Scanner and Ceramic Shield',
+                imageUrl: 'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=400&h=300&fit=crop',
+                category: 'iPhone'
+            },
+            {
+                id: '13',
+                name: 'iPhone 12',
+                price: 499,
+                description: 'A14 Bionic chip with 5G capability and dual camera system',
+                imageUrl: 'https://images.unsplash.com/photo-1603891128711-11b4b03bb138?w=400&h=300&fit=crop',
+                category: 'iPhone'
+            },
+            {
+                id: '14',
+                name: 'iPhone 11 Pro Max',
+                price: 549,
+                description: 'Triple camera system with Night mode and 4K video',
+                imageUrl: 'https://images.unsplash.com/photo-1605236453806-6ff36851218e?w=400&h=300&fit=crop',
+                category: 'iPhone'
+            },
+            {
+                id: '15',
+                name: 'iPhone 11',
+                price: 399,
+                description: 'Dual camera system with Ultra Wide and excellent battery life',
+                imageUrl: 'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400&h=300&fit=crop',
+                category: 'iPhone'
+            }
+        ];
+
+        // Demo orders data
+        const demoOrders = [
+            {
+                id: 'ORD-001',
+                customerId: 'user-uid',
+                customerName: 'Demo User',
+                customerEmail: 'user@iphonestore.com',
+                products: [
+                    { id: '1', name: 'iPhone 15 Pro Max', price: 1199, quantity: 1 }
+                ],
+                total: 1294.92, // Including tax
+                status: 'delivered',
+                paymentMethod: 'card',
+                createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+                updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 'ORD-002',
+                customerId: 'user-uid',
+                customerName: 'Demo User',
+                customerEmail: 'user@iphonestore.com',
+                products: [
+                    { id: '4', name: 'iPhone 15', price: 799, quantity: 1 },
+                    { id: '10', name: 'iPhone SE (3rd Gen)', price: 429, quantity: 1 }
+                ],
+                total: 1326.24, // Including tax
+                status: 'shipped',
+                paymentMethod: 'gcash',
+                createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+                updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 'ORD-003',
+                customerId: 'user-uid',
+                customerName: 'Demo User',
+                customerEmail: 'user@iphonestore.com',
+                products: [
+                    { id: '9', name: 'iPhone 13', price: 599, quantity: 2 }
+                ],
+                total: 1293.84, // Including tax
+                status: 'processing',
+                paymentMethod: 'cash',
+                createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+                updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 'ORD-004',
+                customerId: 'admin-uid',
+                customerName: 'Admin User',
+                customerEmail: 'admin@iphonestore.com',
+                products: [
+                    { id: '2', name: 'iPhone 15 Pro', price: 999, quantity: 1 }
+                ],
+                total: 1078.92, // Including tax
+                status: 'pending',
+                paymentMethod: 'card',
+                createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+                updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000)
+            }
+        ];
+
+        // Initialize demo data
+        function initializeDemoData() {
+            // Load data from localStorage or use defaults
+            products = JSON.parse(localStorage.getItem('products')) || [...demoProducts];
+            users = JSON.parse(localStorage.getItem('users')) || Object.values(demoUsers);
+            paymentMethods = JSON.parse(localStorage.getItem('paymentMethods')) || [];
+            cart = JSON.parse(localStorage.getItem('cart')) || [];
+            orders = JSON.parse(localStorage.getItem('orders')) || [...demoOrders];
+            
+            // Calculate analytics
+            calculateAnalytics();
+            
+            // Render initial data
+            renderProducts(products);
+            renderAdminProducts(products);
+            renderUsers(users);
+            renderCart();
+            updateCartCount();
+            renderAnalytics();
+            renderOrders();
+            renderTopProducts();
+            renderRecentOrders();
+            renderUserActivity();
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('products', JSON.stringify(products));
+            localStorage.setItem('users', JSON.stringify(users));
+            localStorage.setItem('paymentMethods', JSON.stringify(paymentMethods));
+            localStorage.setItem('cart', JSON.stringify(cart));
+            localStorage.setItem('orders', JSON.stringify(orders));
+        }
+
+        // Calculate analytics data
+        function calculateAnalytics() {
+            // Calculate total revenue
+            analytics.totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+            analytics.totalOrders = orders.length;
+            
+            // Calculate top products
+            const productSales = {};
+            orders.forEach(order => {
+                order.products.forEach(product => {
+                    if (!productSales[product.id]) {
+                        productSales[product.id] = {
+                            id: product.id,
+                            name: product.name,
+                            totalSold: 0,
+                            revenue: 0
+                        };
+                    }
+                    productSales[product.id].totalSold += product.quantity;
+                    productSales[product.id].revenue += product.price * product.quantity;
+                });
+            });
+            
+            analytics.topProducts = Object.values(productSales)
+                .sort((a, b) => b.totalSold - a.totalSold)
+                .slice(0, 5);
+            
+            // Generate sales data for chart (last 7 days)
+            analytics.salesData = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dayOrders = orders.filter(order => {
+                    const orderDate = new Date(order.createdAt);
+                    return orderDate.toDateString() === date.toDateString();
+                });
+                const dayRevenue = dayOrders.reduce((sum, order) => sum + order.total, 0);
+                analytics.salesData.push({
+                    date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                    revenue: dayRevenue,
+                    orders: dayOrders.length
+                });
+            }
+            
+            // Generate user activity
+            analytics.userActivity = users.map(user => {
+                const userOrders = orders.filter(order => order.customerId === user.uid);
+                const totalSpent = userOrders.reduce((sum, order) => sum + order.total, 0);
+                return {
+                    ...user,
+                    orderCount: userOrders.length,
+                    totalSpent: totalSpent,
+                    lastActivity: userOrders.length > 0 ? 
+                        new Date(Math.max(...userOrders.map(o => new Date(o.createdAt)))) : 
+                        user.createdAt
+                };
+            }).sort((a, b) => b.totalSpent - a.totalSpent);
+        }
+
+        // Navigation functions
+        function navigateTo(view) {
+            // If user is logged in, restrict navigation to dashboard and cart only
+            if (currentUser && !['admin-dashboard', 'user-dashboard', 'cart', 'checkout'].includes(view)) {
+                return; // Don't allow navigation to public pages when logged in
+            }
+            
+            // Hide all views
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            
+            // Show target view
+            const targetView = document.getElementById(view + '-view');
+            if (targetView) {
+                targetView.classList.remove('hidden');
+                targetView.classList.add('fade-in');
+                currentView = view;
+            }
+        }
+
+        function navigateToDashboard() {
+            if (!currentUser) return;
+            
+            if (currentUser.role === 'admin') {
+                navigateTo('admin-dashboard');
+            } else {
+                navigateTo('user-dashboard');
+            }
+        }
+
+        // Authentication functions
+        async function signUp(name, email, password) {
+            try {
+                // Check if user already exists
+                const existingUser = users.find(u => u.email === email);
+                if (existingUser) {
+                    showNotification('User with this email already exists', 'error');
+                    return false;
+                }
+                
+                // Create new user
+                const newUser = {
+                    uid: 'user-' + Date.now(),
+                    name: name,
+                    email: email,
+                    role: 'user',
+                    password: password,
+                    createdAt: new Date()
+                };
+                
+                users.push(newUser);
+                currentUser = newUser;
+                
+                saveData();
+                updateAuthUI();
+                renderUsers(users);
+                document.getElementById('total-users').textContent = users.length;
+                
+                showNotification('Account created successfully!', 'success');
+                navigateToDashboard();
+                
+                return true;
+            } catch (error) {
+                console.error('Sign up error:', error);
+                showNotification('Error creating account', 'error');
+                return false;
+            }
+        }
+
+        async function signIn(email, password) {
+            try {
+                // Check demo users first
+                const demoUser = demoUsers[email];
+                if (demoUser && demoUser.password === password) {
+                    currentUser = demoUser;
+                    updateAuthUI();
+                    loadUserData();
+                    
+                    showNotification(`Welcome back, ${currentUser.name}!`, 'success');
+                    navigateToDashboard();
+                    return true;
+                }
+                
+                // Check regular users
+                const user = users.find(u => u.email === email && u.password === password);
+                if (user) {
+                    currentUser = user;
+                    updateAuthUI();
+                    loadUserData();
+                    
+                    showNotification(`Welcome back, ${currentUser.name}!`, 'success');
+                    navigateToDashboard();
+                    return true;
+                }
+                
+                showNotification('Invalid email or password', 'error');
+                return false;
+            } catch (error) {
+                console.error('Sign in error:', error);
+                showNotification('Error signing in', 'error');
+                return false;
+            }
+        }
+
+        async function signOut() {
+            try {
+                currentUser = null;
+                updateAuthUI();
+                navigateTo('home');
+                showNotification('Signed out successfully', 'success');
+            } catch (error) {
+                console.error('Sign out error:', error);
+                showNotification('Error signing out', 'error');
+            }
+        }
+
+        // Load user-specific data
+        function loadUserData() {
+            if (currentUser && currentUser.role === 'user') {
+                const userPaymentMethods = paymentMethods.filter(pm => pm.userId === currentUser.uid);
+                renderPaymentMethods(userPaymentMethods);
+            }
+        }
+
+        // UI update functions
+        function updateAuthUI() {
+            const publicNav = document.getElementById('public-nav');
+            const userNav = document.getElementById('user-nav');
+            const userName = document.getElementById('user-name');
+            
+            if (currentUser) {
+                publicNav.classList.add('hidden');
+                userNav.classList.remove('hidden');
+                userNav.classList.add('flex');
+                userName.textContent = currentUser.name;
+            } else {
+                publicNav.classList.remove('hidden');
+                userNav.classList.add('hidden');
+                userNav.classList.remove('flex');
+            }
+        }
+
+        // Product management functions
+        async function addProduct(productData) {
+            try {
+                const newProduct = {
+                    id: 'product-' + Date.now(),
+                    ...productData,
+                    createdAt: new Date()
+                };
+                
+                products.push(newProduct);
+                saveData();
+                renderProducts(products);
+                renderAdminProducts(products);
+                
+                showNotification('Product added successfully!', 'success');
+                return true;
+            } catch (error) {
+                console.error('Error adding product:', error);
+                showNotification('Error adding product', 'error');
+                return false;
+            }
+        }
+
+        async function editProduct(productId, productData) {
+            try {
+                const productIndex = products.findIndex(p => p.id === productId);
+                if (productIndex === -1) {
+                    showNotification('Product not found', 'error');
+                    return false;
+                }
+                
+                products[productIndex] = {
+                    ...products[productIndex],
+                    ...productData,
+                    updatedAt: new Date()
+                };
+                
+                saveData();
+                renderProducts(products);
+                renderAdminProducts(products);
+                
+                showNotification('Product updated successfully!', 'success');
+                return true;
+            } catch (error) {
+                console.error('Error updating product:', error);
+                showNotification('Error updating product', 'error');
+                return false;
+            }
+        }
+
+        async function deleteProduct(productId) {
+            try {
+                products = products.filter(p => p.id !== productId);
+                saveData();
+                renderProducts(products);
+                renderAdminProducts(products);
+                
+                showNotification('Product deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                showNotification('Error deleting product', 'error');
+            }
+        }
+
+        // Cart management functions
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const existingItem = cart.find(item => item.productId === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    id: 'cart-' + Date.now(),
+                    productId: productId,
+                    product: product,
+                    quantity: 1,
+                    addedAt: new Date()
+                });
+            }
+            
+            saveData();
+            updateCartCount();
+            renderCart();
+            showNotification(`${product.name} added to cart!`, 'success');
+        }
+
+        function removeFromCart(cartItemId) {
+            const item = cart.find(item => item.id === cartItemId);
+            if (item) {
+                cart = cart.filter(item => item.id !== cartItemId);
+                saveData();
+                updateCartCount();
+                renderCart();
+                showNotification(`${item.product.name} removed from cart`, 'success');
+            }
+        }
+
+        function updateCartQuantity(cartItemId, newQuantity) {
+            const item = cart.find(item => item.id === cartItemId);
+            if (item) {
+                if (newQuantity <= 0) {
+                    removeFromCart(cartItemId);
+                } else {
+                    item.quantity = newQuantity;
+                    saveData();
+                    updateCartCount();
+                    renderCart();
+                }
+            }
+        }
+
+        function updateCartCount() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const cartCountElements = document.querySelectorAll('#cart-count, #user-cart-count');
+            
+            cartCountElements.forEach(element => {
+                if (totalItems > 0) {
+                    element.textContent = totalItems;
+                    element.classList.remove('hidden');
+                } else {
+                    element.classList.add('hidden');
+                }
+            });
+        }
+
+        function getCartTotal() {
+            return cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+        }
+
+        function proceedToCheckout() {
+            if (cart.length === 0) {
+                showNotification('Your cart is empty', 'error');
+                return;
+            }
+            
+            if (!currentUser) {
+                showNotification('Please sign in to checkout', 'error');
+                navigateTo('login');
+                return;
+            }
+            
+            // Navigate to checkout page
+            navigateTo('checkout');
+            renderCheckout();
+        }
+
+        function renderCheckout() {
+            // Render checkout items
+            const checkoutItems = document.getElementById('checkout-items');
+            if (checkoutItems) {
+                checkoutItems.innerHTML = cart.map(item => `
+                    <div class="flex items-center space-x-4 py-2">
+                        <img src="${item.product.imageUrl}" alt="${item.product.name}" class="w-12 h-12 object-cover rounded-lg" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
+                        <div class="flex-1">
+                            <div class="font-medium text-gray-900 dark:text-white">${item.product.name}</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">Qty: ${item.quantity}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-medium text-gray-900 dark:text-white">$${(item.product.price * item.quantity).toFixed(2)}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Update checkout summary
+            const subtotal = getCartTotal();
+            const tax = subtotal * 0.08; // 8% tax
+            const total = subtotal + tax;
+            
+            document.getElementById('checkout-subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('checkout-tax').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('checkout-total').textContent = `$${total.toFixed(2)}`;
+        }
+
+        function completeOrder() {
+            const selectedPayment = document.querySelector('input[name="payment-method"]:checked');
+            
+            if (!selectedPayment) {
+                showNotification('Please select a payment method', 'error');
+                return;
+            }
+
+            const paymentMethod = selectedPayment.value;
+            let paymentMethodName = '';
+            
+            switch(paymentMethod) {
+                case 'cash':
+                    paymentMethodName = 'Cash Payment';
+                    break;
+                case 'card':
+                    paymentMethodName = 'Credit/Debit Card';
+                    break;
+                case 'gcash':
+                    paymentMethodName = 'GCash';
+                    break;
+            }
+
+            // Create new order
+            const subtotal = getCartTotal();
+            const tax = subtotal * 0.08; // 8% tax
+            const finalTotal = subtotal + tax;
+            
+            const newOrder = {
+                id: 'ORD-' + String(orders.length + 1).padStart(3, '0'),
+                customerId: currentUser.uid,
+                customerName: currentUser.name,
+                customerEmail: currentUser.email,
+                products: cart.map(item => ({
+                    id: item.product.id,
+                    name: item.product.name,
+                    price: item.product.price,
+                    quantity: item.quantity
+                })),
+                total: finalTotal,
+                status: 'pending',
+                paymentMethod: paymentMethod,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            };
+            
+            orders.push(newOrder);
+            
+            // Clear cart after successful checkout
+            cart = [];
+            saveData();
+            updateCartCount();
+            renderCart();
+            
+            // Recalculate analytics
+            calculateAnalytics();
+            renderAnalytics();
+            renderOrders();
+            renderRecentOrders();
+            
+            showNotification(`Order completed successfully! Payment method: ${paymentMethodName}. Total: $${finalTotal.toFixed(2)}`, 'success');
+            navigateTo('user-dashboard');
+        }
+
+        // Order management functions
+        function updateOrderStatus(orderId, newStatus) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = newStatus;
+                order.updatedAt = new Date();
+                saveData();
+                calculateAnalytics();
+                renderOrders();
+                renderRecentOrders();
+                showNotification(`Order ${orderId} status updated to ${newStatus}`, 'success');
+            }
+        }
+
+        function deleteOrder(orderId) {
+            const orderIndex = orders.findIndex(o => o.id === orderId);
+            if (orderIndex !== -1) {
+                orders.splice(orderIndex, 1);
+                saveData();
+                calculateAnalytics();
+                renderAnalytics();
+                renderOrders();
+                renderRecentOrders();
+                showNotification(`Order ${orderId} deleted successfully`, 'success');
+            }
+        }
+
+        // Payment method management functions
+        async function addPaymentMethod(paymentData) {
+            if (!currentUser) return false;
+            
+            try {
+                const newPaymentMethod = {
+                    id: 'payment-' + Date.now(),
+                    userId: currentUser.uid,
+                    ...paymentData,
+                    createdAt: new Date()
+                };
+                
+                paymentMethods.push(newPaymentMethod);
+                saveData();
+                
+                const userPaymentMethods = paymentMethods.filter(pm => pm.userId === currentUser.uid);
+                renderPaymentMethods(userPaymentMethods);
+                
+                showNotification('Payment method added successfully!', 'success');
+                return true;
+            } catch (error) {
+                console.error('Error adding payment method:', error);
+                showNotification('Error adding payment method', 'error');
+                return false;
+            }
+        }
+
+        async function deletePaymentMethod(paymentId) {
+            if (!currentUser) return;
+            
+            try {
+                paymentMethods = paymentMethods.filter(pm => pm.id !== paymentId);
+                saveData();
+                
+                const userPaymentMethods = paymentMethods.filter(pm => pm.userId === currentUser.uid);
+                renderPaymentMethods(userPaymentMethods);
+                
+                showNotification('Payment method deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting payment method:', error);
+                showNotification('Error deleting payment method', 'error');
+            }
+        }
+
+        // Render functions
+        function renderProducts(products) {
+            const grid = document.getElementById('products-grid');
+            if (!grid) return;
+            
+            grid.innerHTML = products.map(product => `
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg card-hover">
+                    <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-cover rounded-lg mb-4" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">${product.name}</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">${product.description}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-2xl font-bold text-blue-600">$${product.price}</span>
+                        <button onclick="addToCart('${product.id}')" class="btn-primary text-white px-4 py-2 rounded-lg font-medium">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderCart() {
+            const cartContent = document.getElementById('cart-content');
+            const cartEmpty = document.getElementById('cart-empty');
+            const cartSummary = document.getElementById('cart-summary');
+            
+            if (!cartContent || !cartEmpty || !cartSummary) return;
+            
+            if (cart.length === 0) {
+                cartContent.innerHTML = '';
+                cartEmpty.classList.remove('hidden');
+                cartSummary.classList.add('hidden');
+                return;
+            }
+            
+            cartEmpty.classList.add('hidden');
+            cartSummary.classList.remove('hidden');
+            
+            cartContent.innerHTML = cart.map(item => `
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+                    <div class="flex items-center space-x-4">
+                        <img src="${item.product.imageUrl}" alt="${item.product.name}" class="w-20 h-20 object-cover rounded-lg" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">${item.product.name}</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm">${item.product.description}</p>
+                            <p class="text-xl font-bold text-blue-600 mt-2">$${item.product.price}</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button onclick="updateCartQuantity('${item.id}', ${item.quantity - 1})" class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                </svg>
+                            </button>
+                            <span class="text-lg font-semibold text-gray-900 dark:text-white w-8 text-center">${item.quantity}</span>
+                            <button onclick="updateCartQuantity('${item.id}', ${item.quantity + 1})" class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg font-bold text-gray-900 dark:text-white">$${(item.product.price * item.quantity).toFixed(2)}</p>
+                            <button onclick="removeFromCart('${item.id}')" class="text-red-600 hover:text-red-700 text-sm mt-1">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Update cart summary
+            const subtotal = getCartTotal();
+            const tax = subtotal * 0.08; // 8% tax
+            const total = subtotal + tax;
+            
+            document.getElementById('cart-subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('cart-tax').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('cart-total').textContent = `$${total.toFixed(2)}`;
+        }
+
+        function renderAdminProducts(products) {
+            const grid = document.getElementById('admin-products-grid');
+            if (!grid) return;
+            
+            grid.innerHTML = products.map(product => `
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+                    <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-32 object-cover rounded-lg mb-4" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">${product.name}</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">${product.description}</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-lg font-bold text-blue-600">$${product.price}</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="showEditProductModal('${product.id}')" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                            Edit
+                        </button>
+                        <button onclick="deleteProduct('${product.id}')" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderPaymentMethods(paymentMethods) {
+            const grid = document.getElementById('payment-methods-grid');
+            if (!grid) return;
+            
+            if (paymentMethods.length === 0) {
+                grid.innerHTML = '<p class="text-gray-600 dark:text-gray-400 col-span-full text-center py-8">No payment methods added yet.</p>';
+                return;
+            }
+            
+            grid.innerHTML = paymentMethods.map(method => `
+                <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white relative">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-semibold">${method.cardType}</h3>
+                        <button onclick="deletePaymentMethod('${method.id}')" class="text-white/80 hover:text-white">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="text-2xl font-mono mb-2">•••• •••• •••• ${method.lastFourDigits}</div>
+                    <div class="text-sm opacity-80">Expires ${method.expiryDate}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('users-table');
+            if (!tbody) return;
+            
+            tbody.innerHTML = users.map(user => {
+                const userOrders = orders.filter(order => order.customerId === user.uid);
+                const totalSpent = userOrders.reduce((sum, order) => sum + order.total, 0);
+                
+                return `
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="py-3 px-4 text-gray-900 dark:text-white">${user.name}</td>
+                        <td class="py-3 px-4 text-gray-600 dark:text-gray-400">${user.email}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full ${user.role === 'admin' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'}">
+                                ${user.role}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-gray-600 dark:text-gray-400">${userOrders.length}</td>
+                        <td class="py-3 px-4 text-gray-600 dark:text-gray-400">$${totalSpent.toFixed(2)}</td>
+                        <td class="py-3 px-4 text-gray-600 dark:text-gray-400">
+                            ${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="flex space-x-2">
+                                <button onclick="editUser('${user.uid}')" class="text-blue-600 hover:text-blue-700 text-sm">
+                                    Edit
+                                </button>
+                                ${user.role !== 'admin' ? `
+                                    <button onclick="suspendUser('${user.uid}')" class="text-red-600 hover:text-red-700 text-sm">
+                                        Suspend
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Render analytics dashboard
+        function renderAnalytics() {
+            // Update metric cards
+            document.getElementById('total-revenue').textContent = `$${analytics.totalRevenue.toFixed(2)}`;
+            document.getElementById('total-orders').textContent = analytics.totalOrders;
+            document.getElementById('total-users').textContent = users.length;
+            document.getElementById('total-products').textContent = products.length;
+            
+            // Calculate growth percentages (simulated)
+            const revenueGrowth = Math.floor(Math.random() * 20) + 5; // 5-25%
+            const ordersGrowth = Math.floor(Math.random() * 15) + 3; // 3-18%
+            const usersGrowth = Math.floor(Math.random() * 25) + 10; // 10-35%
+            
+            document.getElementById('revenue-change').textContent = `+${revenueGrowth}% from last month`;
+            document.getElementById('orders-change').textContent = `+${ordersGrowth}% from last month`;
+            document.getElementById('users-change').textContent = `+${usersGrowth}% from last month`;
+            
+            // Low stock alert (simulated)
+            const lowStockCount = Math.floor(Math.random() * 3); // 0-2 items
+            document.getElementById('low-stock-alert').textContent = `${lowStockCount} low stock items`;
+        }
+
+        // Render orders table
+        function renderOrders() {
+            const tbody = document.getElementById('orders-table');
+            if (!tbody) return;
+            
+            tbody.innerHTML = orders.map(order => `
+                <tr class="border-b border-gray-200 dark:border-gray-700">
+                    <td class="py-3 px-4 text-gray-900 dark:text-white font-mono">${order.id}</td>
+                    <td class="py-3 px-4 text-gray-600 dark:text-gray-400">${order.customerName}</td>
+                    <td class="py-3 px-4 text-gray-600 dark:text-gray-400">
+                        ${order.products.map(p => `${p.name} (${p.quantity})`).join(', ')}
+                    </td>
+                    <td class="py-3 px-4 text-gray-900 dark:text-white font-semibold">$${order.total.toFixed(2)}</td>
+                    <td class="py-3 px-4">
+                        <select onchange="updateOrderStatus('${order.id}', this.value)" class="px-2 py-1 text-xs rounded-full border-0 ${getStatusColor(order.status)}">
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                            <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                            <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </td>
+                    <td class="py-3 px-4 text-gray-600 dark:text-gray-400">
+                        ${new Date(order.createdAt).toLocaleDateString()}
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="flex space-x-2">
+                            <button onclick="viewOrderDetails('${order.id}')" class="text-blue-600 hover:text-blue-700 text-sm">
+                                View
+                            </button>
+                            <button onclick="deleteOrder('${order.id}')" class="text-red-600 hover:text-red-700 text-sm">
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Render top products
+        function renderTopProducts() {
+            const container = document.getElementById('top-products');
+            if (!container) return;
+            
+            if (analytics.topProducts.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-8">No sales data available</p>';
+                return;
+            }
+            
+            container.innerHTML = analytics.topProducts.map((product, index) => `
+                <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                            ${index + 1}
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white">${product.name}</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">${product.totalSold} units sold</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-semibold text-gray-900 dark:text-white">$${product.revenue.toFixed(2)}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Revenue</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render recent orders
+        function renderRecentOrders() {
+            const container = document.getElementById('recent-orders');
+            if (!container) return;
+            
+            const recentOrders = orders
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .slice(0, 5);
+            
+            if (recentOrders.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-8">No recent orders</p>';
+                return;
+            }
+            
+            container.innerHTML = recentOrders.map(order => `
+                <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div>
+                        <div class="font-medium text-gray-900 dark:text-white">${order.id}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">${order.customerName}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-semibold text-gray-900 dark:text-white">$${order.total.toFixed(2)}</div>
+                        <div class="text-xs px-2 py-1 rounded-full ${getStatusColor(order.status)}">${order.status}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render user activity
+        function renderUserActivity() {
+            const container = document.getElementById('user-activity');
+            if (!container) return;
+            
+            const topUsers = analytics.userActivity.slice(0, 5);
+            
+            if (topUsers.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-8">No user activity</p>';
+                return;
+            }
+            
+            container.innerHTML = topUsers.map(user => `
+                <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div>
+                        <div class="font-medium text-gray-900 dark:text-white">${user.name}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">${user.orderCount} orders</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-semibold text-gray-900 dark:text-white">$${user.totalSpent.toFixed(2)}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Total spent</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Helper function for status colors
+        function getStatusColor(status) {
+            switch(status) {
+                case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+                case 'processing': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+                case 'shipped': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+                case 'delivered': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+                case 'cancelled': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+                default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+            }
+        }
+
+        // Admin utility functions
+        function exportReport(type) {
+            let csvContent = '';
+            let filename = '';
+            
+            if (type === 'sales') {
+                csvContent = 'Order ID,Customer,Products,Total,Status,Date,Payment Method\n';
+                orders.forEach(order => {
+                    const products = order.products.map(p => `${p.name} (${p.quantity})`).join('; ');
+                    csvContent += `${order.id},"${order.customerName}","${products}",${order.total},${order.status},${new Date(order.createdAt).toLocaleDateString()},${order.paymentMethod}\n`;
+                });
+                filename = `sales-report-${new Date().toISOString().split('T')[0]}.csv`;
+            } else if (type === 'inventory') {
+                csvContent = 'Product ID,Name,Price,Category,Description\n';
+                products.forEach(product => {
+                    csvContent += `${product.id},"${product.name}",${product.price},"${product.category || 'iPhone'}","${product.description}"\n`;
+                });
+                filename = `inventory-report-${new Date().toISOString().split('T')[0]}.csv`;
+            }
+            
+            // Create and download CSV file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification(`${type === 'sales' ? 'Sales' : 'Inventory'} report exported successfully!`, 'success');
+        }
+
+        function showAllOrders() {
+            // Scroll to orders section
+            document.querySelector('#admin-dashboard-view .bg-white:nth-of-type(4)').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        function viewOrderDetails(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                const details = `
+                    Order ID: ${order.id}
+                    Customer: ${order.customerName} (${order.customerEmail})
+                    Products: ${order.products.map(p => `${p.name} x${p.quantity}`).join(', ')}
+                    Total: $${order.total.toFixed(2)}
+                    Status: ${order.status}
+                    Payment Method: ${order.paymentMethod}
+                    Order Date: ${new Date(order.createdAt).toLocaleString()}
+                    Last Updated: ${new Date(order.updatedAt).toLocaleString()}
+                `;
+                showNotification(details, 'success');
+            }
+        }
+
+        function editUser(userId) {
+            const user = users.find(u => u.uid === userId);
+            if (user) {
+                showNotification(`Edit user functionality would open a modal for ${user.name}`, 'success');
+            }
+        }
+
+        function suspendUser(userId) {
+            const user = users.find(u => u.uid === userId);
+            if (user && user.role !== 'admin') {
+                showNotification(`User ${user.name} has been suspended`, 'success');
+            }
+        }
+
+        function showBulkActions() {
+            showNotification('Bulk actions panel would open here for managing multiple products', 'success');
+        }
+
+        function showPaymentSettings() {
+            showNotification('Payment gateway configuration panel would open here', 'success');
+        }
+
+        function showSecurityLogs() {
+            showNotification('Security logs viewer would open here', 'success');
+        }
+
+        function createBackup() {
+            const backupData = {
+                products: products,
+                users: users,
+                orders: orders,
+                paymentMethods: paymentMethods,
+                timestamp: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `iphone-store-backup-${new Date().toISOString().split('T')[0]}.json`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('System backup created and downloaded successfully!', 'success');
+        }
+
+        // Modal functions
+        function showAddProductModal() {
+            document.getElementById('add-product-modal').classList.remove('hidden');
+            document.getElementById('add-product-modal').classList.add('flex');
+        }
+
+        function showEditProductModal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) {
+                showNotification('Product not found', 'error');
+                return;
+            }
+            
+            // Fill the form with current product data
+            document.getElementById('edit-product-id').value = product.id;
+            document.getElementById('edit-product-name').value = product.name;
+            document.getElementById('edit-product-price').value = product.price;
+            document.getElementById('edit-product-description').value = product.description;
+            document.getElementById('edit-product-image').value = product.imageUrl;
+            
+            // Show the modal
+            document.getElementById('edit-product-modal').classList.remove('hidden');
+            document.getElementById('edit-product-modal').classList.add('flex');
+        }
+
+        function showAddPaymentModal() {
+            document.getElementById('add-payment-modal').classList.remove('hidden');
+            document.getElementById('add-payment-modal').classList.add('flex');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.getElementById(modalId).classList.remove('flex');
+        }
+
+        // Notification function
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            
+            notification.className = `notification px-6 py-4 rounded-lg shadow-lg text-white ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            notification.textContent = message;
+            
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                if (container.contains(notification)) {
+                    container.removeChild(notification);
+                }
+            }, 4000);
+        }
+
+        // Fill login form with demo credentials
+        function fillLoginForm(email, password) {
+            document.getElementById('login-email').value = email;
+            document.getElementById('login-password').value = password;
+        }
+
+        // Theme toggle
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        }
+
+        // Initialize theme
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme
+            initializeTheme();
+            
+            // Initialize demo data
+            initializeDemoData();
+            
+            // Theme toggle
+            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+            // Payment method selection
+            document.addEventListener('change', function(e) {
+                if (e.target.name === 'payment-method') {
+                    // Hide all payment details
+                    const cardDetails = document.getElementById('card-details');
+                    const gcashDetails = document.getElementById('gcash-details');
+                    
+                    if (cardDetails) cardDetails.classList.add('hidden');
+                    if (gcashDetails) gcashDetails.classList.add('hidden');
+                    
+                    // Show relevant payment details
+                    if (e.target.value === 'card' && cardDetails) {
+                        cardDetails.classList.remove('hidden');
+                    } else if (e.target.value === 'gcash' && gcashDetails) {
+                        gcashDetails.classList.remove('hidden');
+                    }
+                }
+            });
+            
+            // Login form
+            document.getElementById('login-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const btn = e.target.querySelector('button[type="submit"]');
+                const btnText = btn.querySelector('.btn-text');
+                const spinner = btn.querySelector('.loading-spinner');
+                
+                btnText.classList.add('hidden');
+                spinner.classList.remove('hidden');
+                
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                
+                await signIn(email, password);
+                
+                btnText.classList.remove('hidden');
+                spinner.classList.add('hidden');
+            });
+            
+            // Sign up form
+            document.getElementById('signup-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const btn = e.target.querySelector('button[type="submit"]');
+                const btnText = btn.querySelector('.btn-text');
+                const spinner = btn.querySelector('.loading-spinner');
+                
+                btnText.classList.add('hidden');
+                spinner.classList.remove('hidden');
+                
+                const name = document.getElementById('signup-name').value;
+                const email = document.getElementById('signup-email').value;
+                const password = document.getElementById('signup-password').value;
+                
+                if (await signUp(name, email, password)) {
+                    e.target.reset();
+                }
+                
+                btnText.classList.remove('hidden');
+                spinner.classList.add('hidden');
+            });
+            
+            // Add product form
+            document.getElementById('add-product-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                
+                const productData = {
+                    name: formData.get('name'),
+                    price: parseFloat(formData.get('price')),
+                    description: formData.get('description'),
+                    imageUrl: formData.get('imageUrl')
+                };
+                
+                if (await addProduct(productData)) {
+                    e.target.reset();
+                    closeModal('add-product-modal');
+                }
+            });
+            
+            // Edit product form
+            document.getElementById('edit-product-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                
+                const productId = formData.get('productId');
+                const productData = {
+                    name: formData.get('name'),
+                    price: parseFloat(formData.get('price')),
+                    description: formData.get('description'),
+                    imageUrl: formData.get('imageUrl')
+                };
+                
+                if (await editProduct(productId, productData)) {
+                    closeModal('edit-product-modal');
+                }
+            });
+            
+            // Add payment method form
+            document.getElementById('add-payment-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                
+                const paymentData = {
+                    cardType: formData.get('cardType'),
+                    lastFourDigits: formData.get('lastFourDigits'),
+                    expiryDate: formData.get('expiryDate')
+                };
+                
+                if (await addPaymentMethod(paymentData)) {
+                    e.target.reset();
+                    closeModal('add-payment-modal');
+                }
+            });
+            
+            // Close modals when clicking outside
+            document.querySelectorAll('.fixed').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeModal(this.id);
+                    }
+                });
+            });
+        });
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99f5433ba2bbfecb',t:'MTc2MzI3ODAxMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
